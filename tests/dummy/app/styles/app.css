@@ -1,15 +1,10 @@
 
 .grid-wrapper {
   width: 300px;
-
-  /*display: flex;
-  flex-direction: column;*/
 }
 
 .simple-grid-item {
-  width: 100px;
   min-height: 100px;
-
   position: absolute;
 
   background: #4abdac;

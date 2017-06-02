@@ -8,17 +8,29 @@ export default Component.extend({
 
   classNames: ['simple-grid'],
 
-  actions: {
-    pushItem(item) {
-      this.processItem(item);
-    },
-  },
-
   /**
    * Default column width
    * @type {Number}
    */
-  columdWidth: 90,
+  columnWidth: computed('columns', 'layoutWidth', function() {
+    const {
+      columns, layoutWidth
+    } = this.getProperties('columns', 'layoutWidth');
+
+    if (!columns || !layoutWidth) {
+      return 90;
+    }
+
+    return layoutWidth / columns;
+  }),
+
+  /**
+   * Width of grid
+   * @type {Number}
+   */
+  layoutWidth: computed('layoutWidth', 'columns', 'columnWidth', 'gutter', function() {
+    return this.$().width();
+  }),
 
   /**
    * Count of columns
@@ -30,29 +42,13 @@ export default Component.extend({
    * Margin between columns
    * @type {Number}
    */
-  margin: 10,
+  gutter: 10,
 
   /**
    * List of items for rendering
    * @type {Array}
    */
   items: computed(() => A()),
-
-  /**
-   * Margin between columns
-   * @type {Number}
-   */
-  gutter: computed(function() {
-    return this.get('margin');
-  }),
-
-  /**
-   * Width of grid
-   * @type {Number}
-   */
-  layoutWidth: computed(function() {
-    return this.$().width();
-  }),
 
   /**
    * Cursor of current processed element
@@ -67,7 +63,7 @@ export default Component.extend({
    * Highest column
    * @type {[type]}
    */
-  topOffset: computed('items.[]', 'cursor.row', 'cursor.column', function() {
+  topOffset: computed('items.[]', 'cursor.row', 'cursor.column', 'columns', 'layoutWidth', 'columnWidth', function() {
     const { cursor, gutter, items, columns } = this.getProperties(
       'cursor', 'gutter', 'items', 'columns'
     );
@@ -88,25 +84,25 @@ export default Component.extend({
    * Left offset for current element
    * @return {[type]} [description]
    */
-  leftOffset: computed('items.[]', 'cursor.row', 'cursor.column', function() {
-    const { cursor, gutter, columns, items } = this.getProperties(
-      'cursor', 'gutter', 'columns', 'items'
+  leftOffset: computed('items.[]', 'cursor.row', 'cursor.column', 'columns', 'columnWidth', function() {
+    const {
+      cursor, gutter, columns, items, columnWidth
+    } = this.getProperties(
+      'cursor', 'gutter', 'columns', 'items', 'columnWidth'
     );
 
     const { row, column } = cursor.getProperties('row', 'column');
     const lastElement = items.get((row * columns) - 1);
 
-    const defaultColumnWidth = this.get('layoutWidth') / columns;
-
     if (!lastElement || !items.get('length')) {
       if (!lastElement) {
-        return column * (defaultColumnWidth + gutter);
+        return column * (columnWidth + gutter);
       }
 
       return 0;
     }
 
-    return column * (lastElement.get('width') + gutter);
+    return column * (columnWidth + gutter);
   }),
 
   /**

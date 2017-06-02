@@ -1,6 +1,6 @@
-{{#simple-grid as | grid |}}
+{{#simple-grid columnWidth=100 as | grid |}}
   {{#each items as | item |}}
-    {{#grid.item}}
+    {{#grid.item height=100}}
       Hello world {{item}}
     {{/grid.item}}
   {{/each}}

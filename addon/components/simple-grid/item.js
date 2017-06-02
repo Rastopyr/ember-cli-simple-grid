@@ -14,13 +14,8 @@ export default Component.extend(CspStyleMixin, {
     'position.left:left[px]',
     'position.top:top[px]',
     'width[px]',
+    'height[px]'
   ],
-
-  /**
-   * Passed position from top
-   * @type {Object}
-   */
-  computedPosition: computed(() => ({})),
 
   /**
    * Position for inline styles
