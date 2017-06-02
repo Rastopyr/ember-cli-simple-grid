@@ -1,4 +1,7 @@
 # ember-cli-simple-grid
+[![Build Status](https://travis-ci.org/Rastopyr/ember-cli-simple-grid.svg?branch=master)](https://travis-ci.org/Rastopyr/ember-cli-simple-grid)
+
+## How to use
 
 ```hbs
 {{#simple-grid as | grid |}}
