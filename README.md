@@ -1,6 +1,16 @@
 # ember-cli-simple-grid
 
-This README outlines the details of collaborating on this Ember addon.
+```hbs
+{{#simple-grid as | grid |}}
+  {{#each listOfItems as | item |}}
+    {{#grid.item}}
+      Some body of element
+    {{/grid.item}}
+  {{/each}}
+{{/simple-grid}}
+```
+
+## How to install
 
 ## Installation
 

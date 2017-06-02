@@ -12,7 +12,8 @@ export default Component.extend(CspStyleMixin, {
 
   styleBindings: [
     'position.left:left[px]',
-    'position.top:top[px]'
+    'position.top:top[px]',
+    'width[px]',
   ],
 
   /**
