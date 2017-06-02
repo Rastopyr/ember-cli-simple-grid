@@ -1,0 +1,1 @@
+export { default } from 'ember-cli-simple-grid/components/simple-grid/item';

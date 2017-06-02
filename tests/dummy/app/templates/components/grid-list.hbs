@@ -1,0 +1,9 @@
+{{#simple-grid as | grid |}}
+  {{#each items as | item |}}
+    {{#grid.item}}
+      Hello world {{item}}
+    {{/grid.item}}
+  {{/each}}
+{{/simple-grid}}
+
+{{yield}}
