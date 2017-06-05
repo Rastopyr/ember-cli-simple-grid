@@ -1,6 +1,6 @@
 {
   "name": "ember-cli-simple-grid",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "The simple implementation of Masonry grid",
   "keywords": [
     "ember-addon"
