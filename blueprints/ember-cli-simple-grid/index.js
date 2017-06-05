@@ -1,6 +1,6 @@
 /* eslint-env node */
 module.exports = {
-  name: 'ember-cli-simple-grid'
+  name: 'ember-cli-simple-grid',
   description: 'Install ember-cli-simple-grid',
 
   afterInstall() {
