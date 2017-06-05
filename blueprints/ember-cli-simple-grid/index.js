@@ -1,10 +1,15 @@
 /* eslint-env node */
 module.exports = {
-  description: '',
+  name: 'ember-cli-simple-grid'
+  description: 'Install ember-cli-simple-grid',
 
   afterInstall() {
     return this.addPackageToProject('ember-cli-csp-style');
-  }
+  },
+
+  normalizeEntityName: function(entityName) {
+    return entityName;
+  },
 
   // locals: function(options) {
   //   // Return custom template variables here.
