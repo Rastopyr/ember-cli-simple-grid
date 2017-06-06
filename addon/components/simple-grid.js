@@ -1,12 +1,17 @@
 import Ember from 'ember';
 import layout from '../templates/components/simple-grid';
 
+import CspStyleMixin from 'ember-cli-csp-style/mixins/csp-style';
+
 const { Component, computed, A } = Ember;
 
-export default Component.extend({
+export default Component.extend(CspStyleMixin, {
   layout,
 
+  styleBindings: ['display'],
   classNames: ['simple-grid'],
+
+  display: 'inline-block',
 
   /**
    * Default column width
