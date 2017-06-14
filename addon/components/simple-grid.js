@@ -179,6 +179,7 @@ export default Component.extend(CspStyleMixin, {
     item.setProperties({
       column: lowestColumn.index,
       top: lowestColumn.height,
+      width: this.get('columnWidth'),
     });
 
     items.pushObject(item);
@@ -201,21 +202,43 @@ export default Component.extend(CspStyleMixin, {
     );
   },
 
-  rerenderAfterItem(item) {
+  rerenderPartItems() {
     const { items } = this.getProperties('items');
-    const indexShouldRerendered = items.indexOf(item);
+    const itemsShouldRerender = items.filter(
+      (item) => item.shouldRerender
+    );
 
-    if (indexShouldRerendered === -1) {
+    const indexStartRerender = items.indexOf(
+      itemsShouldRerender[0]
+    );
+
+    if (indexStartRerender === -1) {
       return;
     }
 
+    this.rerenderAfterIndex(indexStartRerender);
+  },
+
+  rerenderAfterItem(item) {
+    const { items } = this.getProperties('items');
+    const indexStartRerender = items.indexOf(item);
+
+    if (indexStartRerender === -1) {
+      return;
+    }
+
+    this.rerenderAfterIndex(indexStartRerender);
+  },
+
+  rerenderAfterIndex(indexStartRerender) {
+    const { items } = this.getProperties('items');
     const cloned = items.slice(
-      indexShouldRerendered,
+      indexStartRerender,
       items.get('length')
     );
 
     items.removeObjects(
-      items.slice(indexShouldRerendered, items.get('length'))
+      items.slice(indexStartRerender, items.get('length'))
     );
 
     cloned.forEach((item) => {
@@ -223,9 +246,6 @@ export default Component.extend(CspStyleMixin, {
     });
   },
 
-  /**
-   * Rerender items
-   */
   fireRerender() {
     const schedule = this.get('schedule');
 
@@ -240,9 +260,17 @@ export default Component.extend(CspStyleMixin, {
     this.set('schedule', runSchedule);
   },
 
-  reposItems(item) {
-    run(() => {
-      this.rerenderAfterItem(item);
+  fireRerenderPart() {
+    const schedule = this.get('schedule');
+
+    if (schedule) {
+      run.cancel(schedule);
+    }
+
+    const runSchedule = run.next(() => {
+      run.scheduleOnce('afterRender', this, this.rerenderPartItems);
     });
+
+    this.set('schedule', runSchedule);
   }
 });

@@ -13,7 +13,7 @@ export default Component.extend(CspStyleMixin, {
   styleBindings: [
     'left:left[px]',
     'item.top:top[px]',
-    'width[px]',
+    'item.width:width[px]',
     'height[px]',
     'position',
     'display'
@@ -31,7 +31,7 @@ export default Component.extend(CspStyleMixin, {
     });
   }),
 
-  width: alias('columnWidth'),
+  width: alias('item.width'),
 
   left: computed('item.column', 'columnWidth', 'gutter', function() {
     const {

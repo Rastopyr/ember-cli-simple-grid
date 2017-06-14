@@ -17,7 +17,9 @@ export default Item.extend({
       const item = this.get('item');
 
       item.set('state', 'loaded');
-      this.sendAction('reposAfterItem', item);
+      item.set('shouldRerender', true);
+
+      this.sendAction('rerenderPart', item);
     });
   }),
 });
