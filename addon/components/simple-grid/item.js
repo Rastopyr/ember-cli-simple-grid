@@ -33,7 +33,7 @@ export default Component.extend(CspStyleMixin, {
 
   width: alias('item.width'),
 
-  left: computed('item.column', 'columnWidth', 'gutter', function() {
+  left: computed('item.column', 'width', 'gutter', function() {
     const {
       item,
       gutter,
