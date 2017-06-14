@@ -13,7 +13,7 @@ export default Component.extend({
   items: computed(function() {
     const list = [];
 
-    for (var i = 0; i < 30; i++) {
+    for (var i = 0; i < 500; i++) {
       list.push({
         index: i,
         image: i % 2 ?

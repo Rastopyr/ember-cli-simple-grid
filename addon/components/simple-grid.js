@@ -85,7 +85,7 @@ export default Component.extend(CspStyleMixin, {
    * List of heights of columns
    * @return {Array} [description]
    */
-  columnHeights: computed('columns', 'colContainers.[]', 'items.[]', function() {
+  columnHeights: computed('columns', 'items.[]', function() {
     const {
       items,
       gutter,
@@ -160,7 +160,7 @@ export default Component.extend(CspStyleMixin, {
   }),
 
   columnsRerender: observer('columns', function() {
-    this.rerenderItems();
+    this.reRenderItems();
   }),
 
   /**
@@ -176,7 +176,6 @@ export default Component.extend(CspStyleMixin, {
       'items',
     );
 
-
     item.setProperties({
       column: lowestColumn.index,
       top: lowestColumn.height,
@@ -185,7 +184,8 @@ export default Component.extend(CspStyleMixin, {
     items.pushObject(item);
   },
 
-  rerenderItems() {
+  reRenderItems() {
+    console.log('rerender');
     const items = this.get('items')
     const clonedItems = items.slice(0, items.get('length'));
 
@@ -198,12 +198,43 @@ export default Component.extend(CspStyleMixin, {
     );
   },
 
+  rerenderAfterItem(item) {
+    const { items } = this.getProperties('items');
+    const indexShouldRerendered = items.indexOf(item);
+
+    if (indexShouldRerendered === -1) {
+      return;
+    }
+
+    const cloned = items.slice(
+      indexShouldRerendered,
+      items.get('length')
+    );
+
+    items.removeObjects(
+      items.slice(indexShouldRerendered, items.get('length'))
+    );
+
+    cloned.forEach((item) => {
+      this.placeItem(item);
+    });
+  },
+
   /**
    * Rerender items
    */
-  fireRerender() {
-    run(() => {
-      run.scheduleOnce('afterRender', this, this.rerenderItems)
+  fireRerender(item) {
+    const schedule = this.get('schedule');
+    console.log('fire rerender');
+
+    if (schedule) {
+      run.cancel(schedule);
+    }
+    // this.rerenderAfterItem(item);
+    const runSchedule = run.next(() => {
+      run.scheduleOnce('afterRender', this, this.reRenderItems);
     });
+
+    this.set('schedule', runSchedule);
   },
 });

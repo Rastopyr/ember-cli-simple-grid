@@ -14,8 +14,10 @@ export default Item.extend({
     }
 
     image.on('load', () => {
-      this.get('item').set('state', 'loaded');
-      this.sendAction('replaceItems');
+      const item = this.get('item');
+
+      item.set('state', 'loaded');
+      this.sendAction('replaceItems', item);
     });
   }),
 });
