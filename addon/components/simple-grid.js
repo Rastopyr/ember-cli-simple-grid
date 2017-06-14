@@ -160,7 +160,7 @@ export default Component.extend(CspStyleMixin, {
   }),
 
   columnsRerender: observer('columns', function() {
-    this.reRenderItems();
+    this.fireRerender();
   }),
 
   /**
@@ -185,9 +185,12 @@ export default Component.extend(CspStyleMixin, {
   },
 
   reRenderItems() {
-    console.log('rerender');
     const items = this.get('items')
-    const clonedItems = items.slice(0, items.get('length'));
+    const clonedItems = items.slice(0, items.get('length')).filter(
+      (i) => {
+        return !i.isDestroyed;
+      }
+    );
 
     items.clear();
 
@@ -223,18 +226,23 @@ export default Component.extend(CspStyleMixin, {
   /**
    * Rerender items
    */
-  fireRerender(item) {
+  fireRerender() {
     const schedule = this.get('schedule');
-    console.log('fire rerender');
 
     if (schedule) {
       run.cancel(schedule);
     }
-    // this.rerenderAfterItem(item);
+
     const runSchedule = run.next(() => {
       run.scheduleOnce('afterRender', this, this.reRenderItems);
     });
 
     this.set('schedule', runSchedule);
   },
+
+  reposItems(item) {
+    run(() => {
+      this.rerenderAfterItem(item);
+    });
+  }
 });

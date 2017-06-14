@@ -1,0 +1,17 @@
+{{input type="number" value=columns}}
+
+<div style="width: 400px;">
+  {{#simple-grid columns=columns as | grid |}}
+    {{#each items as | item |}}
+      {{#grid-removes/item as | removeItem |}}
+        {{#unless removeItem.isHided}}
+          {{#grid.image}}
+            {{lazy-image url=item.image}}
+          {{/grid.image}}
+        {{/unless}}
+      {{/grid-removes/item}}
+    {{/each}}
+  {{/simple-grid}}
+</div>
+
+{{yield}}

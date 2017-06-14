@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import layout from '../templates/components/grid-image';
+import layout from '../templates/components/grid-removes';
 
 const { Component, computed } = Ember;
 

@@ -4,7 +4,7 @@
   {{#simple-grid columns=columns as | grid |}}
     {{#each items as | item |}}
       {{#grid.image}}
-        <img src="{{item.image}}" alt="">
+        {{lazy-image url=item.image}}
       {{/grid.image}}
     {{/each}}
   {{/simple-grid}}

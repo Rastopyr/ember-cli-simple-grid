@@ -17,7 +17,7 @@ export default Item.extend({
       const item = this.get('item');
 
       item.set('state', 'loaded');
-      this.sendAction('replaceItems', item);
+      this.sendAction('reposAfterItem', item);
     });
   }),
 });

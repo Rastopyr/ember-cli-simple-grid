@@ -68,4 +68,9 @@ export default Component.extend(CspStyleMixin, {
   didGridItemInitialize: on('didInsertElement', function() {
     this.sendAction('placeItem', this.get('item'));
   }),
+
+  willRemoveElement: on('willDestroyElement', function() {
+    this.get('item').destroy();
+    this.sendAction('reposAfterItem', this.get('item'));
+  })
 });
