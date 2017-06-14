@@ -26,9 +26,11 @@ before_install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH=$HOME/.yarn/bin:$PATH
   - yarn global add phantomjs-prebuilt
+  - yarn global add bower
   - phantomjs --version
 
 install:
+  - bower install --allow-root
   - yarn install --no-lockfile
 
 script:
