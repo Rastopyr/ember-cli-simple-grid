@@ -191,7 +191,7 @@ export default Component.extend(CspStyleMixin, {
     const items = this.get('items')
     const clonedItems = items.slice(0, items.get('length'));
 
-    this.set('items', A());
+    items.clear();
 
     clonedItems.forEach((i) => {
       this.placeItem(i);

@@ -14,7 +14,7 @@ export default Component.extend(CspStyleMixin, {
     'left:left[px]',
     'item.top:top[px]',
     'width[px]',
-    // 'height[px]',
+    'height[px]',
     'position',
     'display'
   ],
