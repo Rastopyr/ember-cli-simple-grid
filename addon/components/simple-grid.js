@@ -85,7 +85,7 @@ export default Component.extend(CspStyleMixin, {
    * List of heights of columns
    * @return {Array} [description]
    */
-  columnHeights: computed('columns', 'items.[]', function() {
+  columnHeights: computed('columns', 'colContainers.[]', 'items.[]', function() {
     const {
       items,
       gutter,
@@ -103,7 +103,6 @@ export default Component.extend(CspStyleMixin, {
     });
 
     return _itemsPerColumns.map(function(columnItems, index) {
-
       colContainers[index].height = columnItems.reduce((acc, item) => {
         return acc + gutter + $(item.get('element')).height();
       }, 0);
@@ -177,14 +176,13 @@ export default Component.extend(CspStyleMixin, {
       'items',
     );
 
-    if (items.indexOf(item) === -1) {
-      item.setProperties({
-        column: lowestColumn.index,
-        top: lowestColumn.height,
-      });
 
-      items.pushObject(item);
-    }
+    item.setProperties({
+      column: lowestColumn.index,
+      top: lowestColumn.height,
+    });
+
+    items.pushObject(item);
   },
 
   rerenderItems() {
@@ -193,9 +191,11 @@ export default Component.extend(CspStyleMixin, {
 
     items.clear();
 
-    clonedItems.forEach((i) => {
-      this.placeItem(i);
-    });
+    clonedItems.forEach((i) =>
+      run.schedule('afterRender', () =>
+        this.placeItem(i)
+      )
+    );
   },
 
   /**
