@@ -76,9 +76,9 @@ test('it should adapt to the columns count', function(assert) {
     </div>
   `);
 
-  assert.equal(this.$('.grid-item-1').width(), 100, 'width of elem');
+  assert.equal(this.$('.grid-item-1').width(), 90, 'width of elem');
 
   this.set('columns', 2);
 
-  assert.equal(this.$('.grid-item-1').width(), 150, 'width of elem');
+  assert.equal(this.$('.grid-item-1').width(), 140, 'width of elem');
 });

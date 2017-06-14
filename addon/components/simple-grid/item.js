@@ -3,7 +3,7 @@ import layout from '../../templates/components/simple-grid/item';
 
 import CspStyleMixin from 'ember-cli-csp-style/mixins/csp-style';
 
-const { Component, computed, on, $ } = Ember;
+const { Component, computed, on, computed: { alias } } = Ember;
 
 export default Component.extend(CspStyleMixin, {
   layout,
@@ -11,29 +11,61 @@ export default Component.extend(CspStyleMixin, {
   classNames: ['simple-grid-item'],
 
   styleBindings: [
-    'position.left:left[px]',
-    'position.top:top[px]',
+    'left:left[px]',
+    'item.top:top[px]',
     'width[px]',
-    'height[px]'
+    // 'height[px]',
+    'position',
+    'display'
   ],
 
-  /**
-   * Position for inline styles
-   * @type {Object}
-   */
-  position: computed(function() {
+  position: 'absolute',
+  display: 'inline-block',
+
+  type: 'default',
+
+  item: computed(function() {
     return Ember.Object.create({
-      left: 0,
-      top: 0,
+      element: this.element,
+      type: this.get('type'),
     });
   }),
 
+  width: alias('columnWidth'),
+
+  left: computed('item.column', 'columnWidth', 'gutter', function() {
+    const {
+      item,
+      gutter,
+      columnWidth
+    } = this.getProperties(
+      'item',
+      'gutter',
+      'columnWidth'
+    );
+
+    const column = item.get('column');
+
+    if (column === undefined || column === 0) {
+      return 0;
+    }
+
+    return column * (columnWidth + gutter);
+  }),
+
+  top: computed('item.top', 'gutter', function() {
+    const {
+      item,
+      gutter
+    } = this.getProperties(
+      'item',
+      'gutter',
+    );
+
+    return item.get('top') + gutter;
+  }),
+
   didGridItemInitialize: on('didInsertElement', function() {
-    this.sendAction('pushItem', Ember.Object.create({
-      position: this.get('position'),
-      element: this.element,
-      height: $(this.element).height(),
-      width: $(this.element).width(),
-    }));
+    this.sendAction('placeItem', this.get('item'));
   }),
 });

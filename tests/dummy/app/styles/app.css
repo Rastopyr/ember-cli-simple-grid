@@ -4,7 +4,6 @@
 }
 
 .simple-grid-item {
-  min-height: 100px;
   position: absolute;
 
   background: #4abdac;
@@ -14,4 +13,9 @@
   font-family: Tahoma;
 
   color: white;
+}
+
+img {
+  width: 100%;
+  height: auto;
 }

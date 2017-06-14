@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import layout from '../templates/components/grid-list';
+import layout from '../templates/components/grid-image';
 
 const { Component, computed } = Ember;
 
@@ -13,7 +13,7 @@ export default Component.extend({
   items: computed(function() {
     const list = [];
 
-    for (var i = 0; i < 30; i++) {
+    for (var i = 0; i < 20; i++) {
       list.push({
         index: i,
         image: i % 2 ?

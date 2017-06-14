@@ -26,54 +26,36 @@ test('it renders', function(assert) {
 });
 
 test('correct count of items', function(assert) {
-  this.set('pushItem', () => {
+  this.set('placeItem', () => {
     assert.ok(true);
   });
 
   this.render(hbs`
-    {{#simple-grid/item pushItem=(action pushItem)}}
-      Hello world
-    {{/simple-grid/item}}
-  `);
-});
-
-test('send own position', function(assert) {
-  const expectedPosition = Ember.Object.create({
-    left: 0,
-    top: 0,
-  });
-
-  this.set('position', expectedPosition);
-  this.set('pushItem', (actual) => {
-    assert.deepEqual(actual.position, expectedPosition);
-  });
-
-  this.render(hbs`
-    {{#simple-grid/item pushItem=(action pushItem)}}
+    {{#simple-grid/item placeItem=(action placeItem)}}
       Hello world
     {{/simple-grid/item}}
   `);
 });
 
 test('send element', function(assert) {
-  this.set('pushItem', (actual) => {
+  this.set('placeItem', (actual) => {
     assert.ok(actual.element instanceof window.Element);
   });
 
   this.render(hbs`
-    {{#simple-grid/item pushItem=(action pushItem)}}
+    {{#simple-grid/item placeItem=(action placeItem)}}
       Hello world
     {{/simple-grid/item}}
   `);
 });
 
 test('send instance of Ember.Object', function(assert) {
-  this.set('pushItem', (actual) => {
+  this.set('placeItem', (actual) => {
     assert.ok(actual instanceof Ember.Object);
   });
 
   this.render(hbs`
-    {{#simple-grid/item pushItem=(action pushItem)}}
+    {{#simple-grid/item placeItem=(action placeItem)}}
       Hello world
     {{/simple-grid/item}}
   `);

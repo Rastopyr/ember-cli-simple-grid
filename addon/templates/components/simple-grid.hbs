@@ -1,3 +1,16 @@
 {{yield (hash
-  item=(component 'simple-grid/item' width=columnWidth pushItem=(action processItem))
+  item=(component 'simple-grid/item'
+    gutter=gutter
+    columnWidth=columnWidth
+    columns=columns
+    placeItem=(action placeItem)
+  )
+
+  image=(component 'simple-grid/image-item'
+    gutter=gutter
+    columnWidth=columnWidth
+    columns=columns
+    placeItem=(action placeItem)
+    replaceItems=(action fireRerender)
+  )
 )}}

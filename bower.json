@@ -1,0 +1,6 @@
+{
+  "name": "ember-cli-simple-grid",
+  "dependencies": {
+    "Faker": "^4.1.0"
+  }
+}

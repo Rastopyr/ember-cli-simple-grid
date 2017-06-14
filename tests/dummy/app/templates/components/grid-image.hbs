@@ -3,10 +3,9 @@
 <div style="width: 400px;">
   {{#simple-grid columns=columns as | grid |}}
     {{#each items as | item |}}
-      {{#grid.item}}
-        Hello {{item.index}}
-        {{!-- <img src="{{item.image}}" alt=""> --}}
-      {{/grid.item}}
+      {{#grid.image}}
+        <img src="{{item.image}}" alt="">
+      {{/grid.image}}
     {{/each}}
   {{/simple-grid}}
 </div>

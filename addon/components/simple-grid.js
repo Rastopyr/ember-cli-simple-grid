@@ -3,15 +3,19 @@ import layout from '../templates/components/simple-grid';
 
 import CspStyleMixin from 'ember-cli-csp-style/mixins/csp-style';
 
-const { Component, computed, A } = Ember;
+const { Component, computed, A, $, observer, run } = Ember;
 
 export default Component.extend(CspStyleMixin, {
   layout,
 
-  styleBindings: ['display'],
+  styleBindings: ['position', 'highestColumn.height:height[px]'],
   classNames: ['simple-grid'],
 
-  display: 'inline-block',
+  /**
+   * Prebuild position value
+   * @type {String}
+   */
+  position: 'relative',
 
   /**
    * Default column width
@@ -19,14 +23,12 @@ export default Component.extend(CspStyleMixin, {
    */
   columnWidth: computed('columns', 'layoutWidth', function() {
     const {
-      columns, layoutWidth
-    } = this.getProperties('columns', 'layoutWidth');
+      columns, layoutWidth, gutter
+    } = this.getProperties(
+      'columns', 'layoutWidth', 'gutter'
+    );
 
-    if (!columns || !layoutWidth) {
-      return 90;
-    }
-
-    return layoutWidth / columns;
+    return Math.ceil((layoutWidth / columns) - gutter);
   }),
 
   /**
@@ -56,92 +58,152 @@ export default Component.extend(CspStyleMixin, {
   items: computed(() => A()),
 
   /**
-   * Cursor of current processed element
-   * @type {Object}
-   */
-  cursor: computed(() => Ember.Object.create({
-    row: 0,
-    column: 0,
-  })),
-
-  /**
-   * Highest column
+   * Mode of grid layout
    * @type {[type]}
    */
-  topOffset: computed('items.[]', 'cursor.row', 'cursor.column', 'columns', 'layoutWidth', 'columnWidth', function() {
-    const { cursor, gutter, items, columns } = this.getProperties(
-      'cursor', 'gutter', 'items', 'columns'
-    );
+  mode: 'default',
 
-    const { row } = cursor.getProperties('row');
-    const lastElement = items.get((row * columns) - 1);
+  /**
+   * List of column indexes
+   * @return {Array} [description]
+   */
+  colContainers: computed('columns', function() {
+    const columns = this.get('columns');
+    const colContainers = A();
 
-    if (!lastElement || !items.get('length')) {
-      return 0;
+    for (let i = 0; i < columns; i++) {
+      colContainers.push({
+        index: i,
+        height: 0,
+      })
     }
 
-    const rowCofficient = row === 0 ? 0 : gutter + lastElement.get('height');
-
-    return rowCofficient + lastElement.get('position.top');
+    return colContainers;
   }),
 
   /**
-   * Left offset for current element
-   * @return {[type]} [description]
+   * List of heights of columns
+   * @return {Array} [description]
    */
-  leftOffset: computed('items.[]', 'cursor.row', 'cursor.column', 'columns', 'columnWidth', function() {
+  columnHeights: computed('columns', 'items.[]', function() {
     const {
-      cursor, gutter, columns, items, columnWidth
+      items,
+      gutter,
+      colContainers,
     } = this.getProperties(
-      'cursor', 'gutter', 'columns', 'items', 'columnWidth'
+      'items',
+      'gutter',
+      'colContainers',
     );
 
-    const { row, column } = cursor.getProperties('row', 'column');
-    const lastElement = items.get((row * columns) - 1);
-
-    if (!lastElement || !items.get('length')) {
-      if (!lastElement) {
-        return column * (columnWidth + gutter);
-      }
-
-      return 0;
-    }
-
-    return column * (columnWidth + gutter);
-  }),
-
-  /**
-   * Process items
-   * @param  {Object} item [description]
-   */
-  processItem(item) {
-    const {
-      topOffset,
-      leftOffset,
-      columns,
-      cursor
-    } = this.getProperties(
-      'topOffset',
-      'leftOffset',
-      'columns',
-      'cursor'
-    );
-
-    const { column, row } = cursor.getProperties('column', 'row')
-    const position = item.get('position');
-
-    position.set('top', topOffset);
-    position.set('left', leftOffset);
-
-    this.get('items').pushObject(item);
-
-    if (column !== columns - 1) {
-      cursor.set('column', column + 1);
-    } else {
-      cursor.setProperties({
-        row: row + 1,
-        column: 0,
+    const _itemsPerColumns = colContainers.map(function(c) {
+      return items.filter((i) => {
+        return i.get('column') === c.index;
       });
+    });
+
+    return _itemsPerColumns.map(function(columnItems, index) {
+
+      colContainers[index].height = columnItems.reduce((acc, item) => {
+        return acc + gutter + $(item.get('element')).height();
+      }, 0);
+
+      return colContainers[index];
+    });
+  }),
+
+  /**
+   * Object represent of highes column
+   * @return {Object} [description]
+   */
+  highestColumn: computed('columnHeights.[]', function() {
+    const {
+      columnHeights
+    } = this.getProperties(
+      'columnHeights'
+    );
+
+    const highestColumn = columnHeights.slice(
+      0, columnHeights.length
+    ).sort((a, b) => a.height < b.height)[0];
+
+    if (highestColumn.index === -1) {
+      return {
+        index: 0,
+        height: 0
+      };
     }
-  }
+
+    return highestColumn;
+  }),
+
+  /**
+   * Object represent of lowest column
+   * @return {Object} [description]
+   */
+  lowestColumn: computed('columnHeights.[]', function() {
+    const {
+      columnHeights
+    } = this.getProperties('columnHeights');
+
+    const lowestColumn = columnHeights.slice(
+      0, columnHeights.length
+    ).sort((a, b) => a.height > b.height)[0];
+
+    if (lowestColumn.index === -1) {
+      return {
+        index: 0,
+        height: 0
+      };
+    }
+
+    return lowestColumn;
+  }),
+
+  columnsRerender: observer('columns', function() {
+    this.rerenderItems();
+  }),
+
+  /**
+   * Process if new Item
+   * @param  {Object} item Placed item
+   */
+  placeItem(item) {
+    const {
+      items,
+      lowestColumn,
+    } = this.getProperties(
+      'lowestColumn',
+      'items',
+    );
+
+    if (items.indexOf(item) === -1) {
+      item.setProperties({
+        column: lowestColumn.index,
+        top: lowestColumn.height,
+      });
+
+      items.pushObject(item);
+    }
+  },
+
+  rerenderItems() {
+    const items = this.get('items')
+    const clonedItems = items.slice(0, items.get('length'));
+
+    this.set('items', A());
+
+    clonedItems.forEach((i) => {
+      this.placeItem(i);
+    });
+  },
+
+  /**
+   * Rerender items
+   */
+  fireRerender() {
+    run(() => {
+      run.scheduleOnce('afterRender', this, this.rerenderItems)
+    });
+  },
 });
