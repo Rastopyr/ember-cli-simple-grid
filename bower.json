@@ -2,5 +2,8 @@
   "name": "ember-cli-simple-grid",
   "dependencies": {
     "Faker": "^4.1.0"
+  },
+  "devDependencies": {
+    "blanket": "5e94fc30f2e694bb5c3718ddcbf60d467f4b4d26"
   }
 }

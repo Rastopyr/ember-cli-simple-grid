@@ -3,7 +3,7 @@ import layout from '../templates/components/simple-grid';
 
 import CspStyleMixin from 'ember-cli-csp-style/mixins/csp-style';
 
-const { Component, computed, A, $, observer, run } = Ember;
+const { Component, computed, A, $, observer, run, set } = Ember;
 
 export default Component.extend(CspStyleMixin, {
   layout,
@@ -103,9 +103,9 @@ export default Component.extend(CspStyleMixin, {
     });
 
     return _itemsPerColumns.map(function(columnItems, index) {
-      colContainers[index].height = columnItems.reduce((acc, item) => {
+      set(colContainers[index], 'height', columnItems.reduce((acc, item) => {
         return acc + gutter + $(item.get('element')).height();
-      }, 0);
+      }, 0));
 
       return colContainers[index];
     });
