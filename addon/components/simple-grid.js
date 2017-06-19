@@ -214,10 +214,6 @@ export default Component.extend(CspStyleMixin, {
       itemsShouldRerender[0]
     );
 
-    console.log({
-      indexStartRerender
-    });
-
     if (indexStartRerender === -1) {
       return;
     }
@@ -237,7 +233,13 @@ export default Component.extend(CspStyleMixin, {
   },
 
   rerenderAfterIndex(indexStartRerender) {
-    const { items, isDestroyed } = this.getProperties('items', 'isDestroyed');
+    const {
+      items,
+      isDestroyed
+    } = this.getProperties(
+      'items',
+      'isDestroyed'
+    );
 
     if (isDestroyed) {
       return;
@@ -254,6 +256,10 @@ export default Component.extend(CspStyleMixin, {
 
     cloned.forEach((item) => {
       this.placeItem(item);
+    });
+
+    run.next(() => {
+      run.scheduleOnce('afterRender', this, this.setHeight);
     });
   },
 
@@ -291,5 +297,13 @@ export default Component.extend(CspStyleMixin, {
     });
 
     this.set('schedule', runSchedule);
+  },
+
+  setHeight() {
+    const highestColumn = this.get('highestColumn');
+
+    this.$().css({
+      height: highestColumn.height,
+    });
   }
 });
