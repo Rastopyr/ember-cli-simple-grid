@@ -124,7 +124,7 @@ export default Component.extend(CspStyleMixin, {
 
     const highestColumn = columnHeights.slice(
       0, columnHeights.length
-    ).sort((a, b) => a.height < b.height)[0];
+    ).sort((a, b) => a.height > b.height ? -1 : 1)[0];
 
     if (highestColumn.index === -1) {
       return {
@@ -147,7 +147,7 @@ export default Component.extend(CspStyleMixin, {
 
     const lowestColumn = columnHeights.slice(
       0, columnHeights.length
-    ).sort((a, b) => a.height > b.height)[0];
+    ).sort((a, b) => a.height > b.height ? 1 : -1)[0];
 
     if (lowestColumn.index === -1) {
       return {
