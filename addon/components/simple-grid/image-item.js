@@ -13,6 +13,11 @@ export default Item.extend({
       return;
     }
 
+    const item = this.get('item');
+
+    item.set('column', 0);
+    item.set('top', 0);
+
     image.on('load', () => {
       const item = this.get('item');
 

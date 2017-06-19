@@ -8,7 +8,7 @@ const { Component, computed, A, $, observer, run, set } = Ember;
 export default Component.extend(CspStyleMixin, {
   layout,
 
-  styleBindings: ['position', 'highestColumn.height:height[px]'],
+  styleBindings: ['position'],
   classNames: ['simple-grid'],
 
   /**
@@ -104,7 +104,9 @@ export default Component.extend(CspStyleMixin, {
 
     return _itemsPerColumns.map(function(columnItems, index) {
       set(colContainers[index], 'height', columnItems.reduce((acc, item) => {
-        return acc + gutter + $(item.get('element')).height();
+        const elemHeight = $(item.get('element')).height() || 0;
+
+        return acc + gutter + elemHeight;
       }, 0));
 
       return colContainers[index];
@@ -212,6 +214,10 @@ export default Component.extend(CspStyleMixin, {
       itemsShouldRerender[0]
     );
 
+    console.log({
+      indexStartRerender
+    });
+
     if (indexStartRerender === -1) {
       return;
     }
@@ -231,7 +237,12 @@ export default Component.extend(CspStyleMixin, {
   },
 
   rerenderAfterIndex(indexStartRerender) {
-    const { items } = this.getProperties('items');
+    const { items, isDestroyed } = this.getProperties('items', 'isDestroyed');
+
+    if (isDestroyed) {
+      return;
+    }
+
     const cloned = items.slice(
       indexStartRerender,
       items.get('length')
@@ -247,7 +258,11 @@ export default Component.extend(CspStyleMixin, {
   },
 
   fireRerender() {
-    const schedule = this.get('schedule');
+    const { schedule, isDestroyed } = this.getProperties('schedule', 'isDestroyed');
+
+    if (isDestroyed) {
+      return;
+    }
 
     if (schedule) {
       run.cancel(schedule);
@@ -261,7 +276,11 @@ export default Component.extend(CspStyleMixin, {
   },
 
   fireRerenderPart() {
-    const schedule = this.get('schedule');
+    const { schedule, isDestroyed } = this.getProperties('schedule', 'isDestroyed');
+
+    if (isDestroyed) {
+      return;
+    }
 
     if (schedule) {
       run.cancel(schedule);
