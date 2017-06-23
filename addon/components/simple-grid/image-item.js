@@ -19,7 +19,11 @@ export default Item.extend({
     item.set('top', 0);
 
     image.on('load', () => {
-      const item = this.get('item');
+      const { item, isDestroyed } = this.getProperties('item', 'isDestroyed');
+
+      if (isDestroyed) {
+        return;
+      }
 
       item.set('state', 'loaded');
       item.set('shouldRerender', true);

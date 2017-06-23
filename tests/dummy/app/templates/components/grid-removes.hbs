@@ -6,7 +6,7 @@
       {{#grid-removes/item as | removeItem |}}
         {{#unless removeItem.isHided}}
           {{#grid.image}}
-            {{lazy-image url=item.image}}
+            <img src="{{item.image}}" />
           {{/grid.image}}
         {{/unless}}
       {{/grid-removes/item}}

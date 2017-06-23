@@ -178,11 +178,19 @@ export default Component.extend(CspStyleMixin, {
       'items',
     );
 
-    item.setProperties({
-      column: lowestColumn.index,
-      top: lowestColumn.height,
-      width: this.get('columnWidth'),
-    });
+    if(item.get('isDestroyed')) {
+      return;
+    }
+
+    run(() => {
+      run.schedule('render', () => {
+        item.setProperties({
+          column: lowestColumn.index,
+          top: lowestColumn.height,
+          width: this.get('columnWidth'),
+        });
+      });
+    })
 
     items.pushObject(item);
   },

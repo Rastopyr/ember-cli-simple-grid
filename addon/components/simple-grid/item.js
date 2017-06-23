@@ -3,7 +3,7 @@ import layout from '../../templates/components/simple-grid/item';
 
 import CspStyleMixin from 'ember-cli-csp-style/mixins/csp-style';
 
-const { Component, computed, on, computed: { alias } } = Ember;
+const { Component, computed, on, computed: { alias }, run } = Ember;
 
 export default Component.extend(CspStyleMixin, {
   layout,
@@ -66,11 +66,18 @@ export default Component.extend(CspStyleMixin, {
   }),
 
   didGridItemInitialize: on('didInsertElement', function() {
-    this.sendAction('placeItem', this.get('item'));
+    const placeItemNext = run.schedule('afterRender', () => {
+      this.sendAction('placeItem', this.get('item'));
+    });
+
+    this.set('placeItemNext', placeItemNext);
   }),
 
   willRemoveElement: on('willDestroyElement', function() {
     this.get('item').destroy();
-    this.sendAction('reposAfterItem', this.get('item'));
+
+    run.cancel(this.get('placeItemNext'));
+
+    this.sendAction('rerenderPart', this.get('item'));
   })
 });
