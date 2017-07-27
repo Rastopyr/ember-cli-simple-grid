@@ -178,8 +178,20 @@ export default Component.extend(CspStyleMixin, {
       'items',
     );
 
-    if(item.get('isDestroyed')) {
+    const { index, isDestroyed } = item;
+
+    if(isDestroyed) {
       return;
+    }
+
+    if (index && index < items.get('length')) {
+      items.pushObject(item);
+
+      item.set('shouldRerender', true);
+
+      this.reRenderItems();
+
+      return this.get()
     }
 
     run(() => {
@@ -190,7 +202,7 @@ export default Component.extend(CspStyleMixin, {
           width: this.get('columnWidth'),
         });
       });
-    })
+    });
 
     items.pushObject(item);
   },

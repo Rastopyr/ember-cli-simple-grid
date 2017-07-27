@@ -83,8 +83,9 @@ test('it should adapt to the columns count', function(assert) {
 
   this.set('columns', 2);
 
-  return run.next(() => {
-    assert.equal(this.$('.grid-item-1').width(), 140, 'width of elem');
-  });
-
+  return run.next( () => run.next(() => {
+    run.schedule('afterRender', () => {
+      assert.equal(this.$('.grid-item-1').width(), 140, 'width of elem');
+    });
+  }));
 });
