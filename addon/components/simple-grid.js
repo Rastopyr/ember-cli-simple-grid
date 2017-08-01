@@ -165,6 +165,19 @@ export default Component.extend(CspStyleMixin, {
     this.fireRerender();
   }),
 
+  itemsObserver: observer('items.@each.shouldRerender', function() {
+    const items = this.get('items');
+    const firstShouldRender = items.findBy('shouldRerender', true);
+
+    if (!firstShouldRender) {
+      return;
+    }
+
+    firstShouldRender.set('shouldRerender', false);
+
+    return run.scheduleOnce('afterRender', this, this.reRenderItems);
+  }),
+
   /**
    * Process if new Item
    * @param  {Object} item Placed item
@@ -184,14 +197,10 @@ export default Component.extend(CspStyleMixin, {
       return;
     }
 
-    if (index && index < items.get('length')) {
+    if (index !== undefined && items[index] && items[index] !== item) {
+      items.insertAt(index, item);
+    } else {
       items.pushObject(item);
-
-      item.set('shouldRerender', true);
-
-      this.reRenderItems();
-
-      return this.get()
     }
 
     run(() => {
@@ -203,8 +212,6 @@ export default Component.extend(CspStyleMixin, {
         });
       });
     });
-
-    items.pushObject(item);
   },
 
   reRenderItems() {
@@ -278,9 +285,9 @@ export default Component.extend(CspStyleMixin, {
       this.placeItem(item);
     });
 
-    run.next(() => {
+    // run.next(() => {
       run.scheduleOnce('afterRender', this, this.setHeight);
-    });
+    // });
   },
 
   fireRerender() {

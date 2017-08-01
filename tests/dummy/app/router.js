@@ -9,6 +9,7 @@ const Router = Ember.Router.extend({
 Router.map(function() {
   this.route('images');
   this.route('removes');
+  this.route('added');
 });
 
 export default Router;

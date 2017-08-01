@@ -3,7 +3,8 @@ import layout from '../../templates/components/simple-grid/item';
 
 import CspStyleMixin from 'ember-cli-csp-style/mixins/csp-style';
 
-const { Component, computed, on, computed: { alias }, run } = Ember;
+const { Component, computed, on, observer,  run } = Ember;
+const { alias } = computed;
 
 export default Component.extend(CspStyleMixin, {
   layout,
@@ -24,10 +25,18 @@ export default Component.extend(CspStyleMixin, {
 
   type: 'default',
 
+  itemObserver: observer('type', 'index', function() {
+    this.get('item').setProperties({
+      type: this.get('type'),
+      index: this.get('index'),
+    });
+  }),
+
   item: computed(function() {
     return Ember.Object.create({
       element: this.element,
       type: this.get('type'),
+      index: this.get('index'),
     });
   }),
 

@@ -1,0 +1,17 @@
+{{input type="number" value=columns}}
+
+<button {{action add}}>
+  Add item to start
+</button>
+
+<div style="width: 400px;">
+  {{#simple-grid columns=columns as | grid |}}
+    {{#each items as | item index |}}
+      {{#grid.image index=index}}
+        <img src="{{item.image}}" alt="">
+      {{/grid.image}}
+    {{/each}}
+  {{/simple-grid}}
+</div>
+
+{{yield}}
