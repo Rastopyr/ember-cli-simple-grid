@@ -162,7 +162,7 @@ export default Component.extend(CspStyleMixin, {
   }),
 
   columnsRerender: observer('columns', function() {
-    this.fireRerender();
+    this.reRenderItems();
   }),
 
   itemsObserver: observer('items.@each.shouldRerender', function() {
@@ -203,14 +203,14 @@ export default Component.extend(CspStyleMixin, {
       items.pushObject(item);
     }
 
-    run(() => {
-      run.schedule('render', () => {
-        item.setProperties({
-          column: lowestColumn.index,
-          top: lowestColumn.height,
-          width: this.get('columnWidth'),
-        });
-      });
+    const column = lowestColumn.index;
+    const height = lowestColumn.height;
+    const columnWidth = this.get('columnWidth');
+
+    item.setProperties({
+      column,
+      top: height,
+      width: columnWidth,
     });
   },
 
@@ -225,69 +225,10 @@ export default Component.extend(CspStyleMixin, {
     items.clear();
 
     clonedItems.forEach((i) =>
-      run.schedule('afterRender', () =>
-        this.placeItem(i)
+      run.next('afterRender', () =>
+        requestAnimationFrame(() => this.placeItem(i))
       )
     );
-  },
-
-  rerenderPartItems() {
-    const { items } = this.getProperties('items');
-    const itemsShouldRerender = items.filter(
-      (item) => item.shouldRerender
-    );
-
-    const indexStartRerender = items.indexOf(
-      itemsShouldRerender[0]
-    );
-
-    if (indexStartRerender === -1) {
-      return;
-    }
-
-    this.rerenderAfterIndex(indexStartRerender);
-  },
-
-  rerenderAfterItem(item) {
-    const { items } = this.getProperties('items');
-    const indexStartRerender = items.indexOf(item);
-
-    if (indexStartRerender === -1) {
-      return;
-    }
-
-    this.rerenderAfterIndex(indexStartRerender);
-  },
-
-  rerenderAfterIndex(indexStartRerender) {
-    const {
-      items,
-      isDestroyed
-    } = this.getProperties(
-      'items',
-      'isDestroyed'
-    );
-
-    if (isDestroyed) {
-      return;
-    }
-
-    const cloned = items.slice(
-      indexStartRerender,
-      items.get('length')
-    );
-
-    items.removeObjects(
-      items.slice(indexStartRerender, items.get('length'))
-    );
-
-    cloned.forEach((item) => {
-      this.placeItem(item);
-    });
-
-    // run.next(() => {
-      run.scheduleOnce('afterRender', this, this.setHeight);
-    // });
   },
 
   fireRerender() {
@@ -303,24 +244,6 @@ export default Component.extend(CspStyleMixin, {
 
     const runSchedule = run.next(() => {
       run.scheduleOnce('afterRender', this, this.reRenderItems);
-    });
-
-    this.set('schedule', runSchedule);
-  },
-
-  fireRerenderPart() {
-    const { schedule, isDestroyed } = this.getProperties('schedule', 'isDestroyed');
-
-    if (isDestroyed) {
-      return;
-    }
-
-    if (schedule) {
-      run.cancel(schedule);
-    }
-
-    const runSchedule = run.next(() => {
-      run.scheduleOnce('afterRender', this, this.rerenderPartItems);
     });
 
     this.set('schedule', runSchedule);

@@ -13,9 +13,9 @@ export default Component.extend(CspStyleMixin, {
 
   styleBindings: [
     'left:left[px]',
-    'item.top:top[px]',
+    'top:top[px]',
     'item.width:width[px]',
-    'height[px]',
+    'item.height:height[px]',
     'position',
     'display'
   ],
@@ -41,6 +41,7 @@ export default Component.extend(CspStyleMixin, {
   }),
 
   width: alias('item.width'),
+  height: alias('item.width'),
 
   left: computed('item.column', 'width', 'gutter', function() {
     const {
@@ -62,31 +63,33 @@ export default Component.extend(CspStyleMixin, {
     return column * (columnWidth + gutter);
   }),
 
-  top: computed('item.top', 'gutter', function() {
+  top: computed('item.top', function() {
     const {
       item,
-      gutter
     } = this.getProperties(
       'item',
-      'gutter',
     );
 
-    return item.get('top') + gutter;
+    const top = item.get('top');
+
+
+    if (top === undefined || top === 0) {
+      return 0;
+    }
+
+    return item.get('top');
   }),
 
   didGridItemInitialize: on('didInsertElement', function() {
-    const placeItemNext = run.schedule('afterRender', () => {
+    requestAnimationFrame(() => {
       this.sendAction('placeItem', this.get('item'));
     });
+    // const placeItemNext =
 
-    this.set('placeItemNext', placeItemNext);
+    // this.set('placeItemNext', placeItemNext);
   }),
 
   willRemoveElement: on('willDestroyElement', function() {
     this.get('item').destroy();
-
-    run.cancel(this.get('placeItemNext'));
-
-    this.sendAction('rerenderPart', this.get('item'));
   })
 });
