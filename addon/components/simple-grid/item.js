@@ -3,7 +3,7 @@ import layout from '../../templates/components/simple-grid/item';
 
 import CspStyleMixin from 'ember-cli-csp-style/mixins/csp-style';
 
-const { Component, computed, on, observer,  run } = Ember;
+const { Component, computed, on, observer } = Ember;
 const { alias } = computed;
 
 export default Component.extend(CspStyleMixin, {
@@ -84,9 +84,6 @@ export default Component.extend(CspStyleMixin, {
     requestAnimationFrame(() => {
       this.sendAction('placeItem', this.get('item'));
     });
-    // const placeItemNext =
-
-    // this.set('placeItemNext', placeItemNext);
   }),
 
   willRemoveElement: on('willDestroyElement', function() {
