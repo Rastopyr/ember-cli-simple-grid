@@ -88,5 +88,7 @@ export default Component.extend(CspStyleMixin, {
 
   willRemoveElement: on('willDestroyElement', function() {
     this.get('item').destroy();
+
+    this.sendAction('fireRender');
   })
 });

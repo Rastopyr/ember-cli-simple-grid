@@ -161,11 +161,17 @@ export default Component.extend(CspStyleMixin, {
     return lowestColumn;
   }),
 
+  /**
+   * Rerender by chanes columns
+   */
   columnsRerender: observer('columns', function() {
     this.reRenderItems();
   }),
 
-  itemsObserver: observer('items.@each.shouldRerender', function() {
+  /**
+   * Rerender items by change shouldRerender in Item
+   */
+  itemsRerenderObserver: observer('items.@each.shouldRerender', function() {
     const items = this.get('items');
     const firstShouldRender = items.findBy('shouldRerender', true);
 
@@ -175,7 +181,7 @@ export default Component.extend(CspStyleMixin, {
 
     firstShouldRender.set('shouldRerender', false);
 
-    return run.scheduleOnce('afterRender', this, this.reRenderItems);
+    run.scheduleOnce('afterRender', this, this.reRenderItems);
   }),
 
   /**
@@ -214,6 +220,9 @@ export default Component.extend(CspStyleMixin, {
     });
   },
 
+  /**
+   * Rerender all items
+   */
   reRenderItems() {
     const items = this.get('items')
     const clonedItems = items.slice(0, items.get('length')).filter(
@@ -225,28 +234,10 @@ export default Component.extend(CspStyleMixin, {
     items.clear();
 
     clonedItems.forEach((i) =>
-      run.next('afterRender', () =>
+      run.schedule('afterRender', () =>
         requestAnimationFrame(() => this.placeItem(i))
       )
     );
-  },
-
-  fireRerender() {
-    const { schedule, isDestroyed } = this.getProperties('schedule', 'isDestroyed');
-
-    if (isDestroyed) {
-      return;
-    }
-
-    if (schedule) {
-      run.cancel(schedule);
-    }
-
-    const runSchedule = run.next(() => {
-      run.scheduleOnce('afterRender', this, this.reRenderItems);
-    });
-
-    this.set('schedule', runSchedule);
   },
 
   setHeight() {
