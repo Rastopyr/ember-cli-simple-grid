@@ -15,7 +15,7 @@ export default Component.extend(CspStyleMixin, {
     'left:left[px]',
     'top:top[px]',
     'columnWidth:width[px]',
-    'item.height:height[px]',
+    'height:height[px]',
     'position',
     'display'
   ],
@@ -41,7 +41,7 @@ export default Component.extend(CspStyleMixin, {
   }),
 
   width: alias('item.width'),
-  height: alias('item.width'),
+  height: 'initial',
 
   left: computed('item.column', 'width', 'gutter', function() {
     const {
@@ -89,6 +89,8 @@ export default Component.extend(CspStyleMixin, {
   willRemoveElement: on('willDestroyElement', function() {
     this.get('item').destroy();
 
-    this.sendAction('fireRender');
+    if (!this.get('isDestroyed')) {
+      this.sendAction('fireRender');
+    }
   })
 });

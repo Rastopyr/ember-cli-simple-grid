@@ -3,6 +3,13 @@ import layout from '../templates/components/grid-image';
 
 const { Component, A, on, computed} = Ember;
 
+function randomInteger(min, max) {
+  var rand = min - 0.5 + Math.random() * (max - min + 1)
+  rand = Math.round(rand);
+  return rand;
+}
+
+
 export default Component.extend({
   layout,
 
@@ -19,7 +26,7 @@ export default Component.extend({
       );
     }, 500);
 
-    setTimeout(() => clearInterval(interval), 2000);
+    setTimeout(() => clearInterval(interval), 500);
   }),
 
   generateItems() {
@@ -28,8 +35,7 @@ export default Component.extend({
     for (var i = 0; i < 100; i++) {
       list.push({
         index: i,
-        image: i % 2 ?
-          'http://lorempixel.com/300/600/' : 'http://lorempixel.com/600/400/'
+        image: `http://lorempixel.com/${randomInteger(100, 700)}/${randomInteger(100, 700)}`
       });
     }
 

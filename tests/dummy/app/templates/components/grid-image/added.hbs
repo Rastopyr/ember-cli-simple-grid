@@ -4,8 +4,8 @@
   Add item to start
 </button>
 
-<div style="width: 400px;">
-  {{#simple-grid columns=columns as | grid |}}
+<div>
+  {{#simple-grid columnWidth=300 columns=columns as | grid |}}
     {{#each items as | item index |}}
       {{#grid.image index=index}}
         <img src="{{item.image}}" alt="">

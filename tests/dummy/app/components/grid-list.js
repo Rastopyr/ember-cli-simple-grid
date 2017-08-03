@@ -13,11 +13,9 @@ export default Component.extend({
   items: computed(function() {
     const list = [];
 
-    for (var i = 0; i < 500; i++) {
+    for (var i = 0; i < 100; i++) {
       list.push({
         index: i,
-        image: i % 2 ?
-          'http://lorempixel.com/300/600/' : 'http://lorempixel.com/600/400/'
       });
     }
 

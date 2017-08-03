@@ -3,7 +3,7 @@ import layout from '../templates/components/simple-grid';
 
 import CspStyleMixin from 'ember-cli-csp-style/mixins/csp-style';
 
-const { Component, computed, A, $, observer, run, set } = Ember;
+const { Component, computed, A, $, observer, run } = Ember;
 const { alias } = computed;
 
 export default Component.extend(CspStyleMixin, {
@@ -28,6 +28,12 @@ export default Component.extend(CspStyleMixin, {
     } = this.getProperties(
       'columns', 'layoutWidth', 'gutter'
     );
+
+    const columnWidth = (layoutWidth / columns) - gutter;
+
+    if (columnWidth < 0) {
+      return $(this.get('_itemsPerColumnsfirstObject.element')).width() - gutter;
+    }
 
     return Math.ceil((layoutWidth / columns) - gutter);
   }),
@@ -161,7 +167,14 @@ export default Component.extend(CspStyleMixin, {
    * Rerender by chanes columns
    */
   columnsRerender: observer('columns', function() {
-    this.reRenderItems();
+    this.fireRerender();
+  }),
+
+  /**
+   * Rerender by chanes columns
+   */
+  columnWidthRerender: observer('columnWidth', function() {
+    this.fireRerender();
   }),
 
   /**
@@ -171,13 +184,13 @@ export default Component.extend(CspStyleMixin, {
     const items = this.get('items');
     const firstShouldRender = items.findBy('shouldRerender', true);
 
-    if (!firstShouldRender) {
+    if (!firstShouldRender || firstShouldRender.isDestroyed) {
       return;
     }
 
     firstShouldRender.set('shouldRerender', false);
 
-    run.scheduleOnce('afterRender', this, this.reRenderItems);
+    this.fireRerender();
   }),
 
   /**
@@ -188,16 +201,17 @@ export default Component.extend(CspStyleMixin, {
     const {
       items,
       lowestColumn,
-      _itemsPerColumns,
+      _itemsPerColumns
     } = this.getProperties(
       'items',
       'lowestColumn',
-      '_itemsPerColumns'
+      '_itemsPerColumns',
+      'isDestroyed'
     );
 
-    const { index, isDestroyed } = item;
+    const { index } = item;
 
-    if(isDestroyed) {
+    if(item.isDestroyed || this.get('isDestroyed')) {
       return;
     }
 
@@ -217,6 +231,7 @@ export default Component.extend(CspStyleMixin, {
       column,
       top,
       width: columnWidth,
+      height: 'initial',
     });
   },
 
@@ -224,7 +239,12 @@ export default Component.extend(CspStyleMixin, {
    * Rerender all items
    */
   reRenderItems() {
-    const items = this.get('items')
+    const { items, isDestroyed } = this.getProperties('items', 'isDestroyed');
+
+    if (isDestroyed) {
+      return;
+    }
+
     const clonedItems = items.slice(0, items.get('length')).filter(
       (i) => {
         return !i.isDestroyed;
@@ -235,19 +255,30 @@ export default Component.extend(CspStyleMixin, {
 
     items.clear();
 
-    clonedItems.forEach((i) =>
-      run.schedule('afterRender', () =>
-        requestAnimationFrame(() => this.placeItem(i))
-      )
-    );
-
     run.schedule('afterRender', () =>
-      requestAnimationFrame(() => this.setHeight())
-    )
+      requestAnimationFrame(() => {
+        clonedItems.forEach((i) =>
+          this.placeItem(i)
+        );
+
+        this.setHeight()
+      })
+    );
+  },
+
+  fireRerender() {
+    Ember.run.debounce(this, this.reRenderItems, 200);
   },
 
   setHeight() {
-    const highestColumn = this.get('highestColumn');
+    const {
+      highestColumn,
+      isDestroyed
+    } = this.getProperties('highestColumn', 'isDestroyed');
+
+    if (isDestroyed) {
+      return;
+    }
 
     this.$().css({
       height: highestColumn.top,
@@ -255,7 +286,11 @@ export default Component.extend(CspStyleMixin, {
   },
 
   itemsPerColumn() {
-    const columns = this.get('columns');
+    const { columns, isDestroyed } = this.getProperties('columns', 'isDestroyed');
+    if (isDestroyed) {
+      return;
+    }
+
     const colContainers = A();
 
     for (let i = 0; i < columns; i++) {

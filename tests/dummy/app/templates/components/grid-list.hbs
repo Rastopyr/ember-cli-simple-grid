@@ -1,7 +1,8 @@
 {{input type="number" value=columns}}
 
-<div style="width: 400px;">
+<div>
   {{#simple-grid columns=columns as | grid |}}
+    {{log grid.columnWidth}}
     {{#each items as | item |}}
       {{#grid.item}}
         Hello {{item.index}}
