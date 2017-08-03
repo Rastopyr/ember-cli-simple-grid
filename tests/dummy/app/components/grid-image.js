@@ -1,7 +1,7 @@
 import Ember from 'ember';
 import layout from '../templates/components/grid-image';
 
-const { Component, computed, A } = Ember;
+const { Component, A, on, computed} = Ember;
 
 export default Component.extend({
   layout,
@@ -10,7 +10,19 @@ export default Component.extend({
 
   columns: 3,
 
-  items: computed(function() {
+  items: computed(() => A()),
+
+  itemTimer: on('init', function() {
+    const interval = setInterval(() => {
+      this.get('items').pushObjects(
+        this.generateItems()
+      );
+    }, 500);
+
+    setTimeout(() => clearInterval(interval), 2000);
+  }),
+
+  generateItems() {
     const list = A();
 
     for (var i = 0; i < 100; i++) {
@@ -22,5 +34,5 @@ export default Component.extend({
     }
 
     return list;
-  }),
+  }
 });

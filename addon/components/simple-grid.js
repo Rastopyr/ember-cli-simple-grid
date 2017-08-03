@@ -4,6 +4,7 @@ import layout from '../templates/components/simple-grid';
 import CspStyleMixin from 'ember-cli-csp-style/mixins/csp-style';
 
 const { Component, computed, A, $, observer, run, set } = Ember;
+const { alias } = computed;
 
 export default Component.extend(CspStyleMixin, {
   layout,
@@ -35,7 +36,7 @@ export default Component.extend(CspStyleMixin, {
    * Width of grid
    * @type {Number}
    */
-  layoutWidth: computed('layoutWidth', 'columns', 'columnWidth', 'gutter', function() {
+  layoutWidth: computed('columns', 'columnWidth', 'gutter', function() {
     return this.$().width();
   }),
 
@@ -67,15 +68,15 @@ export default Component.extend(CspStyleMixin, {
    * List of column indexes
    * @return {Array} [description]
    */
-  colContainers: computed('columns', function() {
+  _itemsPerColumns: computed('columns', function() {
     const columns = this.get('columns');
     const colContainers = A();
 
     for (let i = 0; i < columns; i++) {
-      colContainers.push({
-        index: i,
-        height: 0,
-      })
+      colContainers.pushObject(Ember.Object.extend({
+        items: computed(() => A()),
+        length: alias('items.length')
+      }).create({}));
     }
 
     return colContainers;
@@ -87,29 +88,24 @@ export default Component.extend(CspStyleMixin, {
    */
   columnHeights: computed('columns', 'items.[]', function() {
     const {
-      items,
-      gutter,
-      colContainers,
+      _itemsPerColumns,
+      gutter
     } = this.getProperties(
-      'items',
-      'gutter',
-      'colContainers',
+      '_itemsPerColumns',
+      'gutter'
     );
 
-    const _itemsPerColumns = colContainers.map(function(c) {
-      return items.filter((i) => {
-        return i.get('column') === c.index;
-      });
-    });
-
     return _itemsPerColumns.map(function(columnItems, index) {
-      set(colContainers[index], 'height', columnItems.reduce((acc, item) => {
-        const elemHeight = $(item.get('element')).height() || 0;
+      const items = columnItems.get('items')
+      const lastItem = items.get('lastObject');
+      const top = (!lastItem ?
+        0 : (lastItem.get('top') || 0) + ($(lastItem.get('element')).height() + gutter)
+      );
 
-        return acc + gutter + elemHeight;
-      }, 0));
-
-      return colContainers[index];
+      return {
+        index,
+        top,
+      };
     });
   }),
 
@@ -126,12 +122,12 @@ export default Component.extend(CspStyleMixin, {
 
     const highestColumn = columnHeights.slice(
       0, columnHeights.length
-    ).sort((a, b) => a.height > b.height ? -1 : 1)[0];
+    ).sort((a, b) => a.top > b.top ? -1 : 1)[0];
 
-    if (highestColumn.index === -1) {
+    if (!highestColumn || highestColumn.index === -1) {
       return {
         index: 0,
-        height: 0
+        top: 0
       };
     }
 
@@ -149,12 +145,12 @@ export default Component.extend(CspStyleMixin, {
 
     const lowestColumn = columnHeights.slice(
       0, columnHeights.length
-    ).sort((a, b) => a.height > b.height ? 1 : -1)[0];
+    ).sort((a, b) => a.top > b.top ? 1 : -1)[0];
 
-    if (lowestColumn.index === -1) {
+    if (!lowestColumn || lowestColumn.index === -1) {
       return {
         index: 0,
-        height: 0
+        top: 0
       };
     }
 
@@ -192,9 +188,11 @@ export default Component.extend(CspStyleMixin, {
     const {
       items,
       lowestColumn,
+      _itemsPerColumns,
     } = this.getProperties(
-      'lowestColumn',
       'items',
+      'lowestColumn',
+      '_itemsPerColumns'
     );
 
     const { index, isDestroyed } = item;
@@ -203,6 +201,8 @@ export default Component.extend(CspStyleMixin, {
       return;
     }
 
+    _itemsPerColumns[lowestColumn.index].get('items').pushObject(item);
+
     if (index !== undefined && items[index] && items[index] !== item) {
       items.insertAt(index, item);
     } else {
@@ -210,12 +210,12 @@ export default Component.extend(CspStyleMixin, {
     }
 
     const column = lowestColumn.index;
-    const height = lowestColumn.height;
+    const top = lowestColumn.top;
     const columnWidth = this.get('columnWidth');
 
     item.setProperties({
       column,
-      top: height,
+      top,
       width: columnWidth,
     });
   },
@@ -231,6 +231,8 @@ export default Component.extend(CspStyleMixin, {
       }
     );
 
+    this.itemsPerColumn();
+
     items.clear();
 
     clonedItems.forEach((i) =>
@@ -244,7 +246,21 @@ export default Component.extend(CspStyleMixin, {
     const highestColumn = this.get('highestColumn');
 
     this.$().css({
-      height: highestColumn.height,
+      height: highestColumn.top,
     });
+  },
+
+  itemsPerColumn() {
+    const columns = this.get('columns');
+    const colContainers = A();
+
+    for (let i = 0; i < columns; i++) {
+      colContainers.pushObject(Ember.Object.extend({
+        items: computed(() => A()),
+        length: alias('items.length')
+      }).create({}));
+    }
+
+    this.set('_itemsPerColumns', colContainers);
   }
 });

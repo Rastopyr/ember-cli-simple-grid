@@ -27,8 +27,6 @@ export default Item.extend({
 
       item.set('state', 'loaded');
       item.set('shouldRerender', true);
-
-      this.sendAction('rerenderPart', item);
     });
   }),
 });
