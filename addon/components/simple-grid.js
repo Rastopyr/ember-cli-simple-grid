@@ -240,6 +240,10 @@ export default Component.extend(CspStyleMixin, {
         requestAnimationFrame(() => this.placeItem(i))
       )
     );
+
+    run.schedule('afterRender', () =>
+      requestAnimationFrame(() => this.setHeight())
+    )
   },
 
   setHeight() {
