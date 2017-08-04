@@ -79,10 +79,13 @@ export default Component.extend(CspStyleMixin, {
     const colContainers = A();
 
     for (let i = 0; i < columns; i++) {
-      colContainers.pushObject(Ember.Object.extend({
+      const colContainer = Ember.Object.extend({
         items: computed(() => A()),
         length: alias('items.length')
-      }).create({}));
+      }).create({});
+
+      this.on('destroy', () => colContainer.destroy());
+      colContainers.pushObject(colContainer);
     }
 
     return colContainers;
@@ -145,6 +148,13 @@ export default Component.extend(CspStyleMixin, {
    * @return {Object} [description]
    */
   lowestColumn: computed('columnHeights.[]', function() {
+    if (this.get('isDestroyed')) {
+      return {
+        index: 0,
+        top: 0
+      };
+    }
+
     const {
       columnHeights
     } = this.getProperties('columnHeights');
@@ -198,6 +208,13 @@ export default Component.extend(CspStyleMixin, {
    * @param  {Object} item Placed item
    */
   placeItem(item) {
+    if (this.get('isDestroyed')) {
+      return {
+        index: 0,
+        top: 0
+      };
+    }
+
     const {
       items,
       lowestColumn,
@@ -211,7 +228,7 @@ export default Component.extend(CspStyleMixin, {
 
     const { index } = item;
 
-    if(item.isDestroyed || this.get('isDestroyed')) {
+    if(item.isDestroyed) {
       return;
     }
 
@@ -271,14 +288,11 @@ export default Component.extend(CspStyleMixin, {
   },
 
   setHeight() {
-    const {
-      highestColumn,
-      isDestroyed
-    } = this.getProperties('highestColumn', 'isDestroyed');
-
-    if (isDestroyed) {
+    if (this.get('isDestroyed')) {
       return;
     }
+
+    const { highestColumn } = this.getProperties('highestColumn');
 
     this.$().css({
       height: highestColumn.top,
@@ -286,10 +300,11 @@ export default Component.extend(CspStyleMixin, {
   },
 
   itemsPerColumn() {
-    const { columns, isDestroyed } = this.getProperties('columns', 'isDestroyed');
-    if (isDestroyed) {
+    if (this.get('isDestroyed')) {
       return;
     }
+
+    const { columns } = this.getProperties('columns');
 
     const colContainers = A();
 
